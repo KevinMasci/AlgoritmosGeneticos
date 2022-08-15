@@ -1,5 +1,5 @@
 import numpy as np
-from random import randint, uniform
+from random import randint
 
 anchoCromosoma = 10
 largoCromosoma = 10
@@ -12,7 +12,7 @@ def parquenuevo():
     x = 0
     arrayvacio = []
     arrayvacio = np.zeros(anchoCromosoma, largoCromosoma)
-    for x in range(0, aerogenMax)
+    for x in range(0, aerogenMax):
         i = randint(0,1)
-        if i== 1 :
-            
+        if i== 1:
+
