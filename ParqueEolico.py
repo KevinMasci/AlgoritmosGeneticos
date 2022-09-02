@@ -10,7 +10,8 @@ cantCromosomas = 50
 crossover = 0.85
 mutacion = 0.05
 parque = []
-potencias = []
+arr_potencias = []
+pot_total_poblacion = 0
 
 ##DIRECCION DEL VIENTO
 # => [0,0,0,0,0,0,0,0,0,0]
@@ -66,14 +67,24 @@ def calcularPotencia(parque, velm):
                 Ptot += pot_gen
     return Ptot
 
-poblacion = crearPoblacionInicial(cantCromosomas)
+def fitness(arr_potencias):
+    pot_total_poblacion = sum(arr_potencias)
+    return [pot/pot_total_poblacion for pot in arr_potencias]
+
+#Ejecucion
+#Los 3 arrays (poblacion, arr_potencias, arr_parques) tienen el mismo indice
+#es decir; al parque en poblacion[0] le corresponde la potencia en arr_potencias[0]
+#y la fitness en arr_fitness[0]
+    
+poblacion = crearPoblacionInicial(cantCromosomas) #Array con 50 matrices (parques) de 10x10
 for parque in poblacion:
-    potencias.append(calcularPotencia(parque, 7.5))
-    
+    arr_potencias.append(calcularPotencia(parque, 7.5)) #Array con 50 numeros (POTENCIA de cada parque en el array 'poblacion')
+
+arr_fitness = fitness(arr_potencias) #Array con 50 numeros (FITNESS de cada parque en el array 'poblacion')
+
+pot_total_poblacion = sum(arr_potencias)
+
 for x in range(50):
-    print('Parque nro ', x+1, '\n', poblacion[x], '\nPotencia: ', potencias[x], '\n\n')    
-    
-#for index, x in enumerate(poblacion):
-#    print(index+1)
-#    print(x)
+    print('Parque nro ', x+1, '\n', poblacion[x], '\nPotencia: ', arr_potencias[x], '\nFitness: ', arr_fitness[x], '\n\n')
+print('Potencia total de la poblacion: ', pot_total_poblacion)  
 
