@@ -11,7 +11,6 @@ ciudades_back = list(tc.columns)
 matriz_distancias = tc.to_numpy()
 
 c = int(input('Ingrese una ciudad (1 - 24)')) - 1
-c_original = c
 distancias_ciudad_origen = matriz_distancias[:,c]
 
 def buscarCiudadMasCercana(matriz, ciudades, c):
