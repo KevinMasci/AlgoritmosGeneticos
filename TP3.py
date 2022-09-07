@@ -39,4 +39,4 @@ total_recorrido.append(dist_final)
 
 print(lista_ciudades)
 print(total_recorrido)
-print(sum(total_recorrido))
+print("Total recorrido", sum(total_recorrido))
