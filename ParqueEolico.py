@@ -6,8 +6,8 @@ anchoCromosoma = 10
 largoCromosoma = 10
 aerogenMax = 25
 cantCromosomas = 50
-crossover = 0.85
-mutacion = 0.05
+prob_cross = 0.85
+prob_mut = 0.05
 parque = []
 arr_potencias = []
 arr_fitness = []
@@ -60,11 +60,14 @@ def calcularPotencia(parque, velm):
                     pot_gen = 5411 * 0.5 * 1.15 * (vel ** 3)
                 else:
                     dist = (columna - columna_anterior) * 100
-                    vel = vel * (1-(1-sqrt(1-0.889))/(k * dist/41.5)**2)
-                    if vel >= 3:
-                        pot_gen = 5411 * 0.5 * 1.15 * (vel ** 3)
+                    if dist < 1494:
+                        vel = vel * (1-(1-sqrt(1-0.889))/(k * dist/41.5)**2)
+                        if vel >= 3:
+                            pot_gen = 5411 * 0.5 * 1.15 * (vel ** 3)
+                        else:
+                            pot_gen = 0
                     else:
-                        pot_gen = 0
+                        pot_gen = 5411 * 0.5 * 1.15 * (vel ** 3)
                 Ptot += pot_gen
                 columna_anterior = columna
     return Ptot
@@ -119,5 +122,4 @@ print('Potencia total de la poblacion: ', pot_total_poblacion)
 print(arr_fitness)
 print(sum(arr_fitness))
 
-padre1, padre2 = ruleta(poblacion, arr_fitness), ruleta(poblacion, arr_fitness)
-print(padre1, '\n', padre2)
+pares = [ruleta(poblacion, arr_fitness), ruleta(poblacion, arr_fitness)]
