@@ -4,6 +4,7 @@ import numpy as np
 
 tc = pd.read_excel('Archivos\TablaCapitales.xlsx')
 matriz_distancias = tc.to_numpy()
+ciudades = list(tc.columns)
 
 def buscarCiudadMasCercana(matriz_distancias, ciudades, c):
     dist_min = np.nanmin(matriz_distancias[: , c])
@@ -35,6 +36,8 @@ def rutaHeuristica(distancias_ciudad_origen, c):
     return [sum(total_recorrido), lista_ciudades]
 
 def rutaConCiudad():
+    for x in range(24):
+        print(x+1, ')', ciudades[x])
     c = int(input('Ingrese una ciudad (1 - 24)')) - 1
     distancias_ciudad_origen = matriz_distancias[:,c]
     print(rutaHeuristica(distancias_ciudad_origen, c))
