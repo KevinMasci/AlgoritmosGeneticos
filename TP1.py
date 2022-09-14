@@ -14,20 +14,23 @@ minimos = []
 promedios = []
 
 #Clases
+#Se crea la clase Cromosoma con las propiedades genes, objetivo y fitness
 class cromosoma:
-    def __init__(self, genes, objetivo, fitness):
+    def __init__(self, genes, objetivo, fitness): 
         self.genes = genes
         self.objetivo = objetivo
         self.fitness = fitness
 
 #Crea la poblacion inicial
-def crearPoblacionInicial(cantCromosomas, cantGenes):
+#Se pasa la cantidad de cromosomas(individuos) que se quieren 
+# y la cantidad de genes que va a tener cada uno
+def crearPoblacionInicial(cantCromosomas, cantGenes): 
     poblacion = []
     while (len(poblacion) < cantCromosomas):
         genes = ''.join(map(str, random.choices([0,1], k= cantGenes)))
-        individuo = cromosoma(genes, 0, 0)
+        #La funcion objetivo y la fitness se setean en cero
+        individuo = cromosoma(genes, 0, 0) 
         poblacion.append(individuo)
-    
     return poblacion
 
 #Calcula la funcion objetivo de cada individuo
@@ -41,7 +44,10 @@ def fitness(poblacion):
     for individuo in poblacion:
         suma += individuo.objetivo
     for individuo in poblacion:
-        individuo.fitness = round((individuo.objetivo / suma), 4)
+        individuo.fitness = round((individuo.objetivo / suma), 4) 
+        #La funcion fitness es la funcion objetivo de un individuo 
+        # dividido la suma de todas las
+        # funciones objetivo de todos los individuos
 
 #Busca promedio de una poblacion.
 def funcionPromedio(individuos):
@@ -56,58 +62,82 @@ def funcionPromedio(individuos):
 def funcionRuleta(poblacion):
     eleccion = random.uniform(0, 1)
     acum = 0
-    for x in poblacion:
-        acum += x.fitness
-        if acum >= eleccion:
-            return x
+    for x in poblacion: #Para cada cromosoma en la poblacion
+        #El maximo valor del acumulador es 1 porque la 
+        # sumatoria de todas las fitness es 1
+        acum += x.fitness 
+        if acum >= eleccion: 
+            return x 
 
-#Seleccion de un individuo de una poblacion por torneo   #un 0.40 de la poblacion
-def torneo(poblacion):
-    cantParticipantes = round(len(poblacion) * 0.4)
-    participantes = []
-    while len(participantes) < cantParticipantes:
-        participante = random.choice(poblacion)
-        participantes.append(participante)
-    participantes.sort(key = lambda participantes: participantes.fitness)
-    return participantes[-1]
+#Seleccion de un individuo de una poblacion por torneo
+def torneo(poblacion):  
+    #Se seleccionan de manera random dos individuos de la poblacion
+    participante1 = random.choice(poblacion) 
+    participante2 = random.choice(poblacion)
+    #Se compara cual es mas apato dependiendo de su fitness
+    if participante1.fitness > participante2.fitness: 
+        ganador = participante1
+    else: ganador = participante2
+    return ganador
 
 #Calcula si se hace y realiza crossover
-def crossover(individuos, pCross):
-    if pCross >= random.uniform(0, 1):
-        gen = random.randint(0, 29)
-        hijo1, hijo2 = individuos[0].genes, individuos[1].genes
-        individuos[0].genes = hijo1[:gen] + hijo2[gen:]
-        individuos[1].genes = hijo2[:gen] + hijo1[gen:]
+#Se le pasa la pareja de padres, y la probabilidad de crossover
+def crossover(individuos, pCross): 
+    #Se compara la probabilidad de crossover contra 
+    # un numero random entre 0 y 1,
+    # si es mayor a la probabilidad de crossover no hay
+    if pCross >= random.uniform(0, 1):  
+        #Se tira un numero random para saber a partir 
+        # de que gen se va a hacer el crossover
+        gen = random.randint(0, 29) 
+        #Se hace una copia de los individuos
+        hijo1, hijo2 = individuos[0].genes, individuos[1].genes 
+        #Se toman los genes del hijo 1 hasta el gen generado de 
+        # manera random y en el hijo 2 se toman a partir del gen.
+        individuos[0].genes = hijo1[:gen] + hijo2[gen:] 
+        individuos[1].genes = hijo2[:gen] + hijo1[gen:] 
     else: return individuos
     return individuos
 
 #Recibe la pareja seleccionada, calcula y realiza mutacion
-def mutacion(individuos, pMut):
-    for crom in individuos:
+#Se le pasa la pareja, y la probabilidad de mutacion
+def mutacion(individuos, pMut): 
+    #Para cada cromosoma en los individuos.
+    for crom in individuos: 
+         #Si la probabilidad de mutacion es mayor o 
+         # igual al numero random
         if pMut >= random.uniform(0, 1):
-            gen = random.randint(0, 29)
-            cromosoma = list(crom.genes)
+            #Se tira un numero random para saber a partir 
+            # de que gen se va a hacer la mutacion
+            gen = random.randint(0, 29) 
+            #Se convierte el individuo en una lista.
+            cromosoma = list(crom.genes) 
             if cromosoma[gen] == "0":
                  cromosoma[gen] = "1"
             else:
                  cromosoma[gen] = "0"
-            crom.genes = ''.join(map(str, cromosoma))
+            crom.genes = ''.join(map(str, cromosoma)) 
     return individuos
 
 #Elitismo
 def elitismo(poblacion):
-    newGen = []
+    #Se seleccionan los dos mejores, 
+    #como estan ordenados de menor a mayor los 
+    #mejores son el ultimo y el anteultimo siempre
+    newGen = [] 
     newGen.append(poblacion[8])
     newGen.append(poblacion[9])
-    return newGen
+    #Los dos mejores pasan derecho a la nueva generacion
+    return newGen 
 
-#Creo una nueva generacion enviando como argumentos la poblacion y las probabilidades de crossover y mutacion
+#Creo una nueva generacion enviando como argumentos 
+#la poblacion y las probabilidades de crossover y mutacion
 def crearGeneracion(poblacion, pCross, pMut):
     newGen = []
     #Con elitismo
-    newGen = elitismo(poblacion)
+    #newGen = elitismo(poblacion)
     ##
-    while len(newGen) < 10 :
+    while len(newGen) < 10 : #Esto se va a correr 5 veces
         #Con ruleta
         #pares = [copy.deepcopy(funcionRuleta(poblacion)), copy.deepcopy(funcionRuleta(poblacion))]
         #Con torneo
@@ -119,6 +149,7 @@ def crearGeneracion(poblacion, pCross, pMut):
         newGen.append(sujeto2)
     objetivo(newGen)
     fitness(newGen)
+    #Se vuelve a ordenar de menor a mayor
     newGen.sort(key = lambda newGen: newGen.objetivo)
     minimos.append(newGen[0].objetivo)
     maximos.append(newGen[9].objetivo)
@@ -126,9 +157,14 @@ def crearGeneracion(poblacion, pCross, pMut):
     return newGen
 
 #Poblacion inicial
-poblacion = crearPoblacionInicial(10, 30)
-objetivo(poblacion)
-fitness(poblacion)
+
+#Se crea la poblacion inicial pasandole 
+#la cantidad de cromosomas y la cantidad de genes
+poblacion = crearPoblacionInicial(10, 30) 
+#Se calcula la funcion objetivo de cada uno de los individuos
+objetivo(poblacion) 
+#Se calcula la funcion fitness de cada uno de los individuos
+fitness(poblacion) 
 poblacion.sort(key=lambda poblacion: poblacion.objetivo)
 tabla = pd.DataFrame({'Generacion': [1],
                        'Minimo': [poblacion[0].objetivo],
@@ -143,7 +179,7 @@ promedios.append(funcionPromedio(poblacion))
 
 #Ejecucion
 i = 1
-cantGen = 100
+cantGen = 20
 while i < cantGen:
     poblacion = crearGeneracion(poblacion, pCrossover, pMutacion)
     newRow = {'Generacion':i+1, 

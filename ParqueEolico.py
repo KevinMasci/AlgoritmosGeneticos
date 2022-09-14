@@ -12,6 +12,7 @@ parque = []
 arr_potencias = []
 arr_fitness = []
 pot_total_poblacion = 0
+tam_celda = 100
 
 ##DIRECCION DEL VIENTO
 # => [0,0,0,0,0,0,0,0,0,0]
@@ -59,7 +60,7 @@ def calcularPotencia(parque, velm):
                     primer_gen = True
                     pot_gen = 5411 * 0.5 * 1.15 * (vel ** 3)
                 else:
-                    dist = (columna - columna_anterior) * 100
+                    dist = (columna - columna_anterior) * tam_celda
                     if dist < 1494:
                         vel = vel * (1-(1-sqrt(1-0.889))/(k * dist/41.5)**2)
                         if vel >= 3:
@@ -85,6 +86,17 @@ def ruleta(poblacion, arr_fitness):
         acum += arr_fitness[x]
         if acum >= eleccion:
             return poblacion[x]
+        
+#Seleccion de un individuo de una poblacion por torneo
+def torneo(poblacion, arr_fitness):
+    #Se seleccionan de manera random dos individuos de la poblacion
+    p1 = random.randint(0,49)
+    p2 = random.randint(0,49)
+    #Se compara cual es mas apato dependiendo de su fitness
+    if arr_fitness[p1] > arr_fitness[p2]:
+        ganador = poblacion[p1]
+    else: ganador = poblacion[p2]
+    return ganador
 
 #Ordenar los arrays de poblacion potencias y fitness
 def ordenarArrays(poblacion, arr_potencias, arr_fitness):
