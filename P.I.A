@@ -48,15 +48,19 @@ def crearPoblacionInicial(cantCromosomas):
     return poblacion
 
 def crearGeneracion(arr_fitness, cantCromosomas, poblacion, prob_cross, prob_mut):
+    new_arr_potencias = []
     newPoblacion = []
-    while len(newPoblacion) <= 50:
+    while len(newPoblacion) < cantCromosomas:
         pares = [ruleta(poblacion, arr_fitness), ruleta(poblacion, arr_fitness)]
-        pares = FunCrossover(arr_fitness,pares,prob_cross)
+        pares = FunCrossover(prob_cross,pares)
         pares = FunMutacion(pares,prob_mut)
         newPoblacion.append(pares[0])
-        newPoblacion.append(pares(1))
-    calcularPotencia(newPoblacion,7.5)
-        
+        newPoblacion.append(pares[1])
+    #new_arr_potencias = calcularPotencia(newPoblacion,7.5)
+    #new_arr_fitness = fitness(new_arr_potencias)
+    #ordenarArrays(newPoblacion,new_arr_fitness,new_arr_potencias)
+    x = 0
+    return newPoblacion      
 
 
 
@@ -107,25 +111,28 @@ def FunCrossover(crossover,pares):
         if crossover >= random.uniform(0,1):#Corregir
             p = random.randint(0,9)
             i = 0
+            j = 0
+            p1 = pares[0]
+            p2 = pares[1]
             #p1 = ruleta(poblacion, arr_fitness)
             #p2 = ruleta(poblacion, arr_fitness)
-            if p1 != p2:
-                for j in range(9):
+            #if p1 != p2:
+            for j in range(9):
                     acum = pares[0][p,j]
                     pares[0][p,j] = pares[1][p,j]
                     pares[1][p,j] = acum
-                newPoblacion.append(pares[0])
-                newPoblacion.append(pares[1])
-        else:
             newPoblacion.append(pares[0])
             newPoblacion.append(pares[1])
-    return newPoblacion
+        #else:
+            #newPoblacion.append(pares[0])
+            #newPoblacion.append(pares[1])
+            return newPoblacion
 
 def FunMutacion(pares,mutacion):
     i = 0
     if mutacion >= random.uniform(0,1):
-        x = random.randint(1,10)
-        y = random.randint(1,10)
+        x = random.randint(0,9)
+        y = random.randint(0,9)
         if pares[0][x,y] == 0: pares[0][x,y] == 1
         else: pares[0][x,y] == 0
         if pares[1][x,y] == 0: pares[1][x,y] == 1
@@ -160,6 +167,17 @@ pot_total_poblacion = sum(arr_potencias)
 
 ordenarArrays(poblacion, arr_potencias, arr_fitness)
 
+#Acá se debería empezar a crear todas las generaciones
+i = 0
+x = 0
+while i <= 10:
+    Poblacion = crearGeneracion(arr_fitness, cantCromosomas, poblacion, prob_cross, prob_mut)
+    #print('poblacion nueva')
+    while x < 50:
+        print('gen número', x) 
+        print(poblacion[x])
+        x +=1
+    i +=1
 
 
 
