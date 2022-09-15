@@ -13,6 +13,8 @@ arr_potencias = []
 arr_fitness = []
 pot_total_poblacion = 0
 tam_celda = 100
+velm = 7.5
+k = 1/(2 * log(100/0.694))
 
 ##DIRECCION DEL VIENTO
 # => [0,0,0,0,0,0,0,0,0,0]
@@ -48,7 +50,6 @@ def crearPoblacionInicial(cantCromosomas):
 
 def calcularPotencia(parque, velm):
     Ptot = 0
-    k = 1/(2 * log(100/0.694))
     columna_anterior = 0
     for fila in range(10):
         primer_gen = False
@@ -86,7 +87,48 @@ def ruleta(poblacion, arr_fitness):
         acum += arr_fitness[x]
         if acum >= eleccion:
             return poblacion[x]
-        
+
+def calcPotenciaFila(fila):
+    Ptot = 0
+    columna_anterior = 0
+    primer_gen = False
+    dist = 0
+    for columna in range(10):
+        if fila[columna] == 1:
+            if primer_gen == False:
+                vel = velm
+                primer_gen = True
+                pot_gen = 5411 * 0.5 * 1.15 * (vel ** 3)
+            else:
+                dist = (columna - columna_anterior) * tam_celda
+                if dist < 1494:
+                    vel = vel * (1-(1-sqrt(1-0.889))/(k * dist/41.5)**2)
+                    if vel >= 3:
+                        pot_gen = 5411 * 0.5 * 1.15 * (vel ** 3)
+                    else:
+                        pot_gen = 0
+                else:
+                    pot_gen = 5411 * 0.5 * 1.15 * (vel ** 3)
+            Ptot += pot_gen
+            columna_anterior = columna
+    return Ptot
+
+def crossover(pares, prob_cross):
+    p1, p2 = pares[0], pares[1]
+    hijo1 = np.zeros((anchoCromosoma, largoCromosoma), dtype=int)
+    hijo2 = np.zeros((anchoCromosoma, largoCromosoma), dtype=int)
+    if prob_cross >= random.uniform(0, 1):
+        for i in range(10):
+            if calcPotenciaFila(p1[i]) >= calcPotenciaFila(p1[i]):
+                hijo1[i] = p1[i]
+            else:
+                hijo1[i] = p2[i]
+            if np.count_nonzero(p1[:,i] == 1) >= np.count_nonzero(p2[:,i] == 1):
+                hijo2[:,i] = p1[:,i]
+            else:
+                hijo2[:,i] = p2[:,i]
+    return [hijo1, hijo2]
+
 #Seleccion de un individuo de una poblacion por torneo
 def torneo(poblacion, arr_fitness):
     #Se seleccionan de manera random dos individuos de la poblacion
@@ -116,7 +158,7 @@ def ordenarArrays(poblacion, arr_potencias, arr_fitness):
     
 poblacion = crearPoblacionInicial(cantCromosomas) #Array con 50 matrices (parques) de 10x10
 for parque in poblacion:
-    arr_potencias.append(calcularPotencia(parque, 7.5)) #Array con 50 numeros (POTENCIA de cada parque en el array 'poblacion')
+    arr_potencias.append(calcularPotencia(parque, velm)) #Array con 50 numeros (POTENCIA de cada parque en el array 'poblacion')
 
 arr_fitness = fitness(arr_potencias) #Array con 50 numeros (FITNESS de cada parque en el array 'poblacion')
 
