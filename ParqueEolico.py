@@ -123,11 +123,12 @@ def crossover(pares, prob_cross):
                 hijo1[i] = p1[i]
             else:
                 hijo1[i] = p2[i]
-            if np.count_nonzero(p1[:,i] == 1) >= np.count_nonzero(p2[:,i] == 1):
+            if np.sum(p1[:,i]) >= np.sum(p2[:,i]):
                 hijo2[:,i] = p1[:,i]
             else:
                 hijo2[:,i] = p2[:,i]
-    return [hijo1, hijo2]
+        return [hijo1, hijo2]
+    else: return [p1, p2]
 
 #Seleccion de un individuo de una poblacion por torneo
 def torneo(poblacion, arr_fitness):
