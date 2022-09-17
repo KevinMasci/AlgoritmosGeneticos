@@ -15,6 +15,8 @@ pot_total_poblacion = 0
 tam_celda = 100
 velm = 7.5
 k = 1/(2 * log(100/0.694))
+diam_rotor = 83
+rango_estela = 18 * diam_rotor
 
 ##DIRECCION DEL VIENTO
 # => [0,0,0,0,0,0,0,0,0,0]
@@ -62,7 +64,7 @@ def calcularPotencia(parque, velm):
                     pot_gen = 5411 * 0.5 * 1.15 * (vel ** 3)
                 else:
                     dist = (columna - columna_anterior) * tam_celda
-                    if dist < 1494:
+                    if dist <= rango_estela:
                         vel = vel * (1-(1-sqrt(1-0.889))/(k * dist/41.5)**2)
                         if vel >= 3:
                             pot_gen = 5411 * 0.5 * 1.15 * (vel ** 3)
@@ -113,20 +115,26 @@ def calcPotenciaFila(fila):
             columna_anterior = columna
     return Ptot
 
-def crossover(pares, prob_cross):
-    p1, p2 = pares[0], pares[1]
+def crossover(prob_cross):
+    p1, p2 = [torneo(poblacion, arr_fitness), torneo(poblacion, arr_fitness)]
     hijo1 = np.zeros((anchoCromosoma, largoCromosoma), dtype=int)
     hijo2 = np.zeros((anchoCromosoma, largoCromosoma), dtype=int)
     if prob_cross >= random.uniform(0, 1):
-        for i in range(10):
-            if calcPotenciaFila(p1[i]) >= calcPotenciaFila(p1[i]):
-                hijo1[i] = p1[i]
-            else:
-                hijo1[i] = p2[i]
-            if np.sum(p1[:,i]) >= np.sum(p2[:,i]):
-                hijo2[:,i] = p1[:,i]
-            else:
-                hijo2[:,i] = p2[:,i]
+        cant_gen = True
+        while cant_gen == True:
+            for i in range(10):
+                if calcPotenciaFila(p1[i]) >= calcPotenciaFila(p1[i]):
+                    hijo1[i] = p1[i]
+                else:
+                    hijo1[i] = p2[i]
+                if np.sum(p1[:,i]) >= np.sum(p2[:,i]):
+                    hijo2[:,i] = p1[:,i]
+                else:
+                    hijo2[:,i] = p2[:,i]
+            if hijo1.sum() > 25 or hijo2.sum() > 25:
+                p1, p2 = [torneo(poblacion, arr_fitness), torneo(poblacion, arr_fitness)]
+            else: 
+                cant_gen = False
         return [hijo1, hijo2]
     else: return [p1, p2]
 
@@ -141,6 +149,17 @@ def torneo(poblacion, arr_fitness):
     else: ganador = poblacion[p2]
     return ganador
 
+def FunMutacion(pares, mutacion):
+    i = 0
+    if mutacion >= random.uniform(0,1):
+        x = random.randint(0,9)
+        y = random.randint(0,9)
+        if pares[0][x,y] == 0: pares[0][x,y] == 1
+        else: pares[0][x,y] == 0
+        if pares[1][x,y] == 0: pares[1][x,y] == 1
+        else: pares[1][x,y] == 0
+    return pares 
+
 #Ordenar los arrays de poblacion potencias y fitness
 def ordenarArrays(poblacion, arr_potencias, arr_fitness):
     n = cantCromosomas
@@ -150,7 +169,21 @@ def ordenarArrays(poblacion, arr_potencias, arr_fitness):
                 arr_fitness[j], arr_fitness[j + 1] = arr_fitness[j + 1], arr_fitness[j]
                 poblacion[j], poblacion[j + 1] = poblacion[j + 1], poblacion[j]
                 arr_potencias[j], arr_potencias[j + 1] = arr_potencias[j + 1], arr_potencias[j]
-                
+
+def crearGeneracion(arr_fitness, poblacion, prob_cross, prob_mut):
+    arr_potencias = []
+    newPoblacion = []
+    while len(newPoblacion) < cantCromosomas:
+        pares = crossover(prob_cross)
+        pares = FunMutacion(pares ,prob_mut)
+        newPoblacion.append(pares[0])
+        newPoblacion.append(pares[1])
+    for parque in poblacion:
+        arr_potencias.append(calcularPotencia(parque, velm))
+    arr_fitness = fitness(arr_potencias)
+    ordenarArrays(newPoblacion, arr_fitness, arr_potencias)
+    x = 0
+    return newPoblacion
 
 #Ejecucion
 #Los 3 arrays (poblacion, arr_potencias, arr_parques) tienen el mismo indice
@@ -160,13 +193,20 @@ def ordenarArrays(poblacion, arr_potencias, arr_fitness):
 poblacion = crearPoblacionInicial(cantCromosomas) #Array con 50 matrices (parques) de 10x10
 for parque in poblacion:
     arr_potencias.append(calcularPotencia(parque, velm)) #Array con 50 numeros (POTENCIA de cada parque en el array 'poblacion')
-
 arr_fitness = fitness(arr_potencias) #Array con 50 numeros (FITNESS de cada parque en el array 'poblacion')
-
-pot_total_poblacion = sum(arr_potencias)
-
 ordenarArrays(poblacion, arr_potencias, arr_fitness)
 
+#Acá se debería empezar a crear todas las generaciones
+i = 0
+x = 0
+while i <= 10:
+    Poblacion = crearGeneracion(arr_fitness, poblacion, prob_cross, prob_mut)
+    #print('poblacion nueva')
+    while x < 50:
+        print('gen número', x) 
+        print(poblacion[x])
+        x +=1
+    i +=1
 
 
 
