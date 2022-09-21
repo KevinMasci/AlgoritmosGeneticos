@@ -24,9 +24,9 @@ def rutaHeuristica(distancias_ciudad_origen, c):
         ciudad_distancia = buscarCiudadMasCercana(matriz_distancias, ciudades, c) #Busco indice ciudad, nombre ciudad y dist min
         lista_ciudades.append(ciudades[ciudad_distancia[0]])    #Guardo la ciudad
         total_recorrido.append(ciudad_distancia[2]) #Guardo la distancia
-        del ciudades[c] 
+        del ciudades[c]
         matriz_distancias = np.delete(matriz_distancias, c, axis=1)
-        matriz_distancias = np.delete(matriz_distancias, c, 0)      
+        matriz_distancias = np.delete(matriz_distancias, c, 0)
         c = ciudades.index(ciudad_distancia[1]) #Guardo el nuevo indice
     ciudad_final = lista_ciudades[-1]   #nombre de la ultima ciudad
     i_ciudad_final = ciudades_back.index(ciudad_final)  #indice original de la ultima ciudad

@@ -1,6 +1,7 @@
 from math import log, sqrt
 import numpy as np
 import random
+import copy
 
 anchoCromosoma = 10
 largoCromosoma = 10
@@ -78,6 +79,7 @@ def calcularPotencia(parque, velm):
 
 def fitness(arr_potencias):
     pot_total_poblacion = sum(arr_potencias)
+    arr_fitness = []
     for pot in arr_potencias:
         arr_fitness.append(round(pot/pot_total_poblacion, 10))
     return arr_fitness
@@ -116,7 +118,7 @@ def calcPotenciaFila(fila):
     return Ptot
 
 def crossover(prob_cross):
-    p1, p2 = [torneo(poblacion, arr_fitness), torneo(poblacion, arr_fitness)]
+    p1, p2 = [copy.deepcopy(torneo(poblacion, arr_fitness)), copy.deepcopy(torneo(poblacion, arr_fitness))]
     hijo1 = np.zeros((anchoCromosoma, largoCromosoma), dtype=int)
     hijo2 = np.zeros((anchoCromosoma, largoCromosoma), dtype=int)
     if prob_cross >= random.uniform(0, 1):
@@ -182,7 +184,6 @@ def crearGeneracion(arr_fitness, poblacion, prob_cross, prob_mut):
         arr_potencias.append(calcularPotencia(parque, velm))
     arr_fitness = fitness(arr_potencias)
     ordenarArrays(newPoblacion, arr_fitness, arr_potencias)
-    x = 0
     return newPoblacion
 
 #Ejecucion
@@ -210,11 +211,9 @@ while i <= 10:
 
 
 
-for x in range(50):
-    print('Parque nro ', x+1, '\n', poblacion[x], '\nPotencia: ', arr_potencias[x], '\nFitness: ', arr_fitness[x], '\n\n')
-print('Potencia total de la poblacion: ', pot_total_poblacion)  
-
-print(arr_fitness)
-print(sum(arr_fitness))
-
-pares = [ruleta(poblacion, arr_fitness), ruleta(poblacion, arr_fitness)]
+#for x in range(50):
+#    print('Parque nro ', x+1, '\n', poblacion[x], '\nPotencia: ', arr_potencias[x], '\nFitness: ', arr_fitness[x], '\n\n')
+#
+#print(arr_fitness)
+#print(arr_potencias)
+#print(sum(arr_fitness))
