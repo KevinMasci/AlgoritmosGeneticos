@@ -203,10 +203,10 @@ x = 0
 while i <= 10:
     Poblacion = crearGeneracion(arr_fitness, poblacion, prob_cross, prob_mut)
     #print('poblacion nueva')
-    print("generacion: ",i)
-    for inx, x in enumerate(poblacion):
-        print('gen número', inx)
-        print(x)
+    while x < 50:
+        print('gen número', x) 
+        print(poblacion[x])
+        x +=1
     i +=1
 
 
