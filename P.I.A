@@ -1,5 +1,3 @@
-
-
 from math import log, sqrt
 import numpy as np
 import random
@@ -14,18 +12,23 @@ parque = []
 arr_potencias = []
 arr_fitness = []
 pot_total_poblacion = 0
+tam_celda = 100
+velm = 7.5
+k = 1/(2 * log(100/0.694))
+diam_rotor = 83
+rango_estela = 18 * diam_rotor
 
 ##DIRECCION DEL VIENTO
 # => [0,0,0,0,0,0,0,0,0,0]
+# => [0,0,1,0,0,0,0,0,0,0]
+# => [0,0,0,0,0,0,0,0,0,0]
+# => [0,0,0,0,0,0,0,1,0,0]
 # => [0,0,0,0,0,0,0,0,0,0]
 # => [0,0,0,0,0,0,0,0,0,0]
 # => [0,0,0,0,0,0,0,0,0,0]
 # => [0,0,0,0,0,0,0,0,0,0]
 # => [0,0,0,0,0,0,0,0,0,0]
-# => [0,0,0,0,0,0,0,0,0,0]
-# => [0,0,0,0,0,0,0,0,0,0]
-# => [0,0,0,0,0,0,0,0,0,0]
-# => [0,0,0,0,0,0,0,0,0,0]
+# => [0,0,0,0,0,0,0,0,0,1]
 
 
 #Velocidad minima para el funcionamiento de un aerogenerador 3 m/s
@@ -38,7 +41,8 @@ def crearParque():
         if n == 1:
             i = random.randint(0,largoCromosoma-1)
             j = random.randint(0,anchoCromosoma-1)
-            parque[i,j] = 1
+            if (i != 3 and j != 9) and (i != 8 and j !=7) and (i != 10 and j != 1):
+                parque[i,j] = 1
     return parque
 
 def crearPoblacionInicial(cantCromosomas):
@@ -47,26 +51,8 @@ def crearPoblacionInicial(cantCromosomas):
         poblacion.append(crearParque())
     return poblacion
 
-def crearGeneracion(arr_fitness, cantCromosomas, poblacion, prob_cross, prob_mut):
-    new_arr_potencias = []
-    newPoblacion = []
-    while len(newPoblacion) < cantCromosomas:
-        pares = [ruleta(poblacion, arr_fitness), ruleta(poblacion, arr_fitness)]
-        pares = FunCrossover(prob_cross,pares)
-        pares = FunMutacion(pares,prob_mut)
-        newPoblacion.append(pares[0])
-        newPoblacion.append(pares[1])
-    #new_arr_potencias = calcularPotencia(newPoblacion,7.5)
-    #new_arr_fitness = fitness(new_arr_potencias)
-    #ordenarArrays(newPoblacion,new_arr_fitness,new_arr_potencias)
-    x = 0
-    return newPoblacion      
-
-
-
 def calcularPotencia(parque, velm):
     Ptot = 0
-    k = 1/(2 * log(100/0.694))
     columna_anterior = 0
     for fila in range(10):
         primer_gen = False
@@ -78,8 +64,8 @@ def calcularPotencia(parque, velm):
                     primer_gen = True
                     pot_gen = 5411 * 0.5 * 1.15 * (vel ** 3)
                 else:
-                    dist = (columna - columna_anterior) * 100
-                    if dist < 1494:
+                    dist = (columna - columna_anterior) * tam_celda
+                    if dist <= rango_estela:
                         vel = vel * (1-(1-sqrt(1-0.889))/(k * dist/41.5)**2)
                         if vel >= 3:
                             pot_gen = 5411 * 0.5 * 1.15 * (vel ** 3)
@@ -105,30 +91,74 @@ def ruleta(poblacion, arr_fitness):
         if acum >= eleccion:
             return poblacion[x]
 
-def FunCrossover(crossover,pares):
-    newPoblacion = []
-    for i in range(25):
-        if crossover >= random.uniform(0,1):#Corregir
-            p = random.randint(0,9)
-            i = 0
-            j = 0
-            p1 = pares[0]
-            p2 = pares[1]
-            #p1 = ruleta(poblacion, arr_fitness)
-            #p2 = ruleta(poblacion, arr_fitness)
-            #if p1 != p2:
-            for j in range(9):
-                    acum = pares[0][p,j]
-                    pares[0][p,j] = pares[1][p,j]
-                    pares[1][p,j] = acum
-            newPoblacion.append(pares[0])
-            newPoblacion.append(pares[1])
-        #else:
-            #newPoblacion.append(pares[0])
-            #newPoblacion.append(pares[1])
-            return newPoblacion
+def calcPotenciaFila(fila):
+    Ptot = 0
+    columna_anterior = 0
+    primer_gen = False
+    dist = 0
+    for columna in range(10):
+        if fila[columna] == 1:
+            if primer_gen == False:
+                vel = velm
+                primer_gen = True
+                pot_gen = 5411 * 0.5 * 1.15 * (vel ** 3)
+            else:
+                dist = (columna - columna_anterior) * tam_celda
+                if dist < 1494:
+                    vel = vel * (1-(1-sqrt(1-0.889))/(k * dist/41.5)**2)
+                    if vel >= 3:
+                        pot_gen = 5411 * 0.5 * 1.15 * (vel ** 3)
+                    else:
+                        pot_gen = 0
+                else:
+                    pot_gen = 5411 * 0.5 * 1.15 * (vel ** 3)
+            Ptot += pot_gen
+            columna_anterior = columna
+    return Ptot
 
-def FunMutacion(pares,mutacion):
+def crossover(prob_cross):
+    p1, p2 = [torneo(poblacion, arr_fitness), torneo(poblacion, arr_fitness)]
+    hijo1 = np.zeros((anchoCromosoma, largoCromosoma), dtype=int)
+    hijo2 = np.zeros((anchoCromosoma, largoCromosoma), dtype=int)
+    if prob_cross >= random.uniform(0, 1):
+        cant_gen = True
+        while cant_gen == True:
+            for i in range(10):
+                if calcPotenciaFila(p1[i]) >= calcPotenciaFila(p1[i]):
+                    hijo1[i] = p1[i]
+                else:
+                    hijo1[i] = p2[i]
+                if np.sum(p1[:,i]) >= np.sum(p2[:,i]):
+                    hijo2[:,i] = p1[:,i]
+                else:
+                    hijo2[:,i] = p2[:,i]
+            if hijo1.sum() > 25 or hijo2.sum() > 25:
+                p1, p2 = [torneo(poblacion, arr_fitness), torneo(poblacion, arr_fitness)]
+            else: 
+                cant_gen = False
+        return [hijo1, hijo2]
+    else: return [p1, p2]
+
+def elitismo(poblacion):
+    newGen = []
+    i = 0
+    while len(newGen) <= 10:
+        newGen.append(poblacion[i + 1])
+    return newGen
+
+
+#Seleccion de un individuo de una poblacion por torneo
+def torneo(poblacion, arr_fitness):
+    #Se seleccionan de manera random dos individuos de la poblacion
+    p1 = random.randint(0,49)
+    p2 = random.randint(0,49)
+    #Se compara cual es mas apato dependiendo de su fitness
+    if arr_fitness[p1] > arr_fitness[p2]:
+        ganador = poblacion[p1]
+    else: ganador = poblacion[p2]
+    return ganador
+
+def FunMutacion(pares, mutacion):
     i = 0
     if mutacion >= random.uniform(0,1):
         x = random.randint(0,9)
@@ -137,9 +167,7 @@ def FunMutacion(pares,mutacion):
         else: pares[0][x,y] == 0
         if pares[1][x,y] == 0: pares[1][x,y] == 1
         else: pares[1][x,y] == 0
-    return pares    
-
-
+    return pares 
 
 #Ordenar los arrays de poblacion potencias y fitness
 def ordenarArrays(poblacion, arr_potencias, arr_fitness):
@@ -150,7 +178,26 @@ def ordenarArrays(poblacion, arr_potencias, arr_fitness):
                 arr_fitness[j], arr_fitness[j + 1] = arr_fitness[j + 1], arr_fitness[j]
                 poblacion[j], poblacion[j + 1] = poblacion[j + 1], poblacion[j]
                 arr_potencias[j], arr_potencias[j + 1] = arr_potencias[j + 1], arr_potencias[j]
-                
+
+def crearGeneracion(arr_fitness, poblacion, prob_cross, prob_mut):
+    arr_potencias = []
+    newPoblacion = []
+    poblacionElite = []
+    while len(newPoblacion) < cantCromosomas:
+        #    ---selección por elitismo---
+        #poblacionElite = elitismo(poblacion)
+        #for i in range(10):
+            #newPoblacion.append(poblacionElite[i])
+        pares = crossover(prob_cross)
+        pares = FunMutacion(pares ,prob_mut)
+        newPoblacion.append(pares[0])
+        newPoblacion.append(pares[1])
+    for parque in poblacion:
+        arr_potencias.append(calcularPotencia(parque, velm))
+    arr_fitness = fitness(arr_potencias)
+    ordenarArrays(newPoblacion, arr_fitness, arr_potencias)
+    x = 0
+    return newPoblacion
 
 #Ejecucion
 #Los 3 arrays (poblacion, arr_potencias, arr_parques) tienen el mismo indice
@@ -159,37 +206,31 @@ def ordenarArrays(poblacion, arr_potencias, arr_fitness):
     
 poblacion = crearPoblacionInicial(cantCromosomas) #Array con 50 matrices (parques) de 10x10
 for parque in poblacion:
-    arr_potencias.append(calcularPotencia(parque, 7.5)) #Array con 50 numeros (POTENCIA de cada parque en el array 'poblacion')
-
+    arr_potencias.append(calcularPotencia(parque, velm)) #Array con 50 numeros (POTENCIA de cada parque en el array 'poblacion')
 arr_fitness = fitness(arr_potencias) #Array con 50 numeros (FITNESS de cada parque en el array 'poblacion')
-
-pot_total_poblacion = sum(arr_potencias)
-
 ordenarArrays(poblacion, arr_potencias, arr_fitness)
 
 #Acá se debería empezar a crear todas las generaciones
 i = 0
 x = 0
-while i <= 10:
-    Poblacion = crearGeneracion(arr_fitness, cantCromosomas, poblacion, prob_cross, prob_mut)
-    #print('poblacion nueva')
-    while x < 50:
-        print('gen número', x) 
-        print(poblacion[x])
-        x +=1
-    i +=1
+z=1
+for i in range(10):
+    Poblacion = crearGeneracion(arr_fitness, poblacion, prob_cross, prob_mut)
+    print('poblacion número:  ', i+1 )
+    for x in poblacion:
+        print('gen número  ', z)
+        z+=1 
+        print('\n',x)
+    z=0    
+    
 
 
 
-
-
-for x in range(50):
-    print('Parque nro ', x+1, '\n\n', poblacion[x], '\nPotencia: ', arr_potencias[x], '\nFitness: ', arr_fitness[x], '\n\n')
-print('Potencia total de la poblacion: ', pot_total_poblacion)  
+#for x in range(50):
+#    print('Parque nro ', x+1, '\n', poblacion[x], '\nPotencia: ', arr_potencias[x], '\nFitness: ', arr_fitness[x], '\n\n')
+#print('Potencia total de la poblacion: ', pot_total_poblacion)  
 
 print(arr_fitness)
 print(sum(arr_fitness))
 
 pares = [ruleta(poblacion, arr_fitness), ruleta(poblacion, arr_fitness)]
-print('los pares son','\n',pares[0],'\n',pares[1])
-print(pares[1][1,4])
