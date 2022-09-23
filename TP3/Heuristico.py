@@ -1,11 +1,13 @@
 import pandas as pd
 import numpy as np
-
+import random
+import copy
 
 tc = pd.read_excel('Archivos\TablaCapitales.xlsx')
 matriz_distancias = tc.to_numpy()
 ciudades = list(tc.columns)
 
+#Funciones item 2
 def buscarCiudadMasCercana(matriz_distancias, ciudades, c):
     dist_min = np.nanmin(matriz_distancias[: , c])
     i_ciudad = np.where(matriz_distancias[:,c] == dist_min)[0][0]
@@ -58,16 +60,3 @@ def rutaMasCorta():
         if viaje[0] == total:
             r += 1
     print(ruta, total, r)
-
-ans = 0
-while ans != 5:
-    print("1) Ruta mas corta\n2) Ruta mas corta eligiendo ciudad inicial\n3) Salir")
-    ans=input("Ingrese una opcion:")
-    if ans == "1":
-        rutaMasCorta()
-    elif ans == "2":
-        rutaConCiudad()
-    elif ans == "3":
-        break
-    elif ans != "1" and ans != "2" and ans != "3":
-        print("Ingrese un numero correcto")
