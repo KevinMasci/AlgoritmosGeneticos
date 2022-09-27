@@ -206,6 +206,7 @@ while i <= 10:
     while x < 50:
         print('gen número', x) 
         print(poblacion[x])
+        print(arr_potencias[x])
         x +=1
     i +=1
 

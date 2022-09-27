@@ -54,9 +54,9 @@ def rutaMasCorta():
         if total == 0:
             total = viaje[0]
             ruta = viaje[1]
-        elif viaje[0] < total:
-                total = viaje[0]
-                ruta = viaje[1]
-        if viaje[0] == total:
+        elif viaje[0] == total:
             r += 1
+        elif viaje[0] < total:
+            total = viaje[0]
+            ruta = viaje[1]
     print(ruta, total, r)
