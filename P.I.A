@@ -1,6 +1,8 @@
 from math import log, sqrt
 import numpy as np
 import random
+import matplotlib.pyplot as plt
+import pandas as pd
 
 anchoCromosoma = 10
 largoCromosoma = 10
@@ -147,6 +149,16 @@ def elitismo(poblacion):
     return newGen
 
 
+def graficas(poblacion):
+    #for parque in poblacion:
+    for x in range(10):
+        for y in range(10):
+            if (poblacion[0][x,y] == 1):
+                plt.scatter(x,y)
+    plt.axis([0, 11, 0, 11])
+    plt.show()
+
+
 #Seleccion de un individuo de una poblacion por torneo
 def torneo(poblacion, arr_fitness):
     #Se seleccionan de manera random dos individuos de la poblacion
@@ -209,19 +221,25 @@ for parque in poblacion:
     arr_potencias.append(calcularPotencia(parque, velm)) #Array con 50 numeros (POTENCIA de cada parque en el array 'poblacion')
 arr_fitness = fitness(arr_potencias) #Array con 50 numeros (FITNESS de cada parque en el array 'poblacion')
 ordenarArrays(poblacion, arr_potencias, arr_fitness)
+graficas(poblacion)
+
 
 #Acá se debería empezar a crear todas las generaciones
 i = 0
 x = 0
-z=1
-for i in range(10):
+z=0
+for i in range(2):
     Poblacion = crearGeneracion(arr_fitness, poblacion, prob_cross, prob_mut)
-    print('poblacion número:  ', i+1 )
+    if (i == 2):
+        graficas(poblacion)
+    print('poblacion número:  ', i)
     for x in poblacion:
         print('gen número  ', z)
         z+=1 
         print('\n',x)
-    z=0    
+    z=0
+
+graficas(poblacion)            
     
 
 
