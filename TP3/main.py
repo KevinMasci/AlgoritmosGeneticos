@@ -15,5 +15,3 @@ while ans != 5:
         break
     elif ans != "1" and ans != "2" and ans != "3":
         print("Ingrese un numero correcto")
-        
-##matplotlib.image

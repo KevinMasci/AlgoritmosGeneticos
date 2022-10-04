@@ -2,23 +2,26 @@ import pandas as pd
 import numpy as np
 from Genetico import mapa
 
+#Declaracion de variables y constantes
 tc = pd.read_excel('Archivos\TablaCapitales.xlsx')
 matriz_distancias = tc.to_numpy()
 ciudades = list(tc.columns)
 
+#Funcion para buscar la distancia mas cercana en la columna de una ciudad
+#devuelve el indice de la ciudad mas cercana, el nombre y la distancia.
 def buscarCiudadMasCercana(matriz_distancias, ciudades, c):
     dist_min = np.nanmin(matriz_distancias[: , c])
     i_ciudad = np.where(matriz_distancias[:,c] == dist_min)[0][0]
     nom_ciudad = ciudades[i_ciudad]
     return [i_ciudad, nom_ciudad, dist_min]
 
-
+#Funcion para buscar la ruta mas corta utilizando el metodo heuristico.
 def rutaHeuristica(distancias_ciudad_origen, c):
     lista_ciudades = []
     total_recorrido =[]
     indices_ciudades = []
     ciudades = list(tc.columns)
-    ciudades_back = list(tc.columns)
+    ciudades_back = list(tc.columns)    #Backup de la lista de ciudades original
     lista_ciudades.append(ciudades[c])
     matriz_distancias = tc.to_numpy()
     for x in range(23):
@@ -43,9 +46,9 @@ def rutaConCiudad():
         print(x+1, ')', ciudades[x])
     c = int(input('Ingrese una ciudad (1 - 24)')) - 1
     distancias_ciudad_origen = matriz_distancias[:,c]
-    total, recorrido, ruta = rutaHeuristica(distancias_ciudad_origen, c)
-    print(recorrido, total, ruta)
-    mapa(ruta)
+    total, ruta, recorrido = rutaHeuristica(distancias_ciudad_origen, c)
+    print('Recorrido: ', recorrido, '\nCiudades', ruta, '\nDistancia', total)
+    mapa(recorrido)
 
 def rutaMasCorta():
     ruta = []
@@ -61,5 +64,5 @@ def rutaMasCorta():
             total = viaje[0]
             ruta = viaje[1]
             recorrido = viaje[2]
-    print(ruta, total, recorrido)
+    print('Recorrido: ', recorrido, '\nCiudades', ruta, '\nDistancia', total)
     mapa(recorrido)

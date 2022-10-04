@@ -4,12 +4,13 @@ import copy
 from matplotlib import pyplot as plt
 from matplotlib import image as img
 
+#Declaracion de constantes y variables
 cantCromosomas = 50
 cantGenes = 23
 poblacion = []
 pCross = 0.75
-pMut = 0.20
-cantCiclos = 2000
+pMut = 0.05
+cantCiclos = 200
 cantSeleccion = 34
 tc = pd.read_excel('Archivos\TablaCapitales.xlsx')
 matriz_distancias = tc.to_numpy()
@@ -30,6 +31,7 @@ def fitness(poblacion):
     for crom in poblacion:
         crom.fitness = crom.distancia/aux
 
+#Crossover ciclico
 def crossover(p1, p2):
     hijo1 = cromosoma([-1]*24)
     hijo2 = cromosoma([-1]*24)
@@ -57,6 +59,7 @@ def crossover(p1, p2):
             hijo2.genes[x] = p1.genes[x]
     return [hijo1, hijo2]
 
+#Mutacion intercambia dos genes
 def mutacion(nuevaGen):
     for crom in nuevaGen:
         if random.uniform(0, 1) < pMut:
@@ -79,7 +82,8 @@ def crearGeneracion():
     poblacion.clear()
     for crom in nuevaGen:
         poblacion.append(crom)
-        
+
+#Funcion para graficar el recorrido
 def mapa(recorrido):
     coordenadas=[[541,599],[333,455],[543,273],[560,207],[547,614],[241,381],
     [169,527],[201,800],[479,470],[655,279],[316,1002],[530,262],
@@ -90,7 +94,7 @@ def mapa(recorrido):
     ax = fig.gca()
     plt.imshow(image)
     figure = ax.plot(coordenadas[recorrido[0]][0], coordenadas[recorrido[0]][1], marker= "o", color= "b")
-    for i in range(23):
+    for i in range(24):
         desde = recorrido[i]
         hacia = recorrido[i + 1]
         coordx = [coordenadas[desde][0], coordenadas[hacia][0]]
@@ -98,6 +102,7 @@ def mapa(recorrido):
         figure = ax.plot(coordx, coordy, c= 'r')
     plt.show()
 
+#Funcion principal
 def metodoGenetico():
     #Poblacion inicial
     while len(poblacion) < cantCromosomas:
@@ -109,6 +114,7 @@ def metodoGenetico():
     fitness(poblacion)
     poblacion.sort(key=lambda poblacion: poblacion.distancia)
 
+    #Corrida de ciclos
     c = 0
     while c < cantCiclos:
         crearGeneracion()
@@ -126,7 +132,7 @@ def metodoGenetico():
     cities = []
     for x in elElegido.genes:
         cities.append(ciudades[x])
-    print('recorrido: ', elElegido.genes, '\ndistancias: ' , arr_distancias,'\nCiudades: ',  cities,'\ndistancia: ', elElegido.distancia, '   fitness: ', elElegido.fitness)
+    print('recorrido: ', elElegido.genes,'\nCiudades: ',  cities,'\nDistancia: ', elElegido.distancia, '   Fitness: ', elElegido.fitness)
     mapa(elElegido.genes)
     poblacion.clear()
   
