@@ -1,7 +1,8 @@
-import numpy as np
 import pandas as pd
 import random
 import copy
+from matplotlib import pyplot as plt
+from matplotlib import image as img
 
 cantCromosomas = 50
 cantGenes = 23
@@ -9,6 +10,7 @@ poblacion = []
 pCross = 0.75
 pMut = 0.20
 cantCiclos = 2000
+cantSeleccion = 34
 tc = pd.read_excel('Archivos\TablaCapitales.xlsx')
 matriz_distancias = tc.to_numpy()
 ciudades = list(tc.columns)
@@ -24,8 +26,6 @@ class cromosoma:
 def fitness(poblacion):
     aux = 0
     for crom in poblacion:
-        #if np.isnan(crom.distancia):
-        #    print('hay un nan')
         aux += crom.distancia
     for crom in poblacion:
         crom.fitness = crom.distancia/aux
@@ -65,9 +65,8 @@ def mutacion(nuevaGen):
             aux = crom.genes[i]
             crom.genes[i] = crom.genes[j]
             crom.genes[j] = aux
-            #crom.genes[i], crom.genes[j] = crom.genes[j], crom.genes[i]
 
-def crearGeneracion(cantSeleccion):
+def crearGeneracion():
     nuevaGen = poblacion[0: cantSeleccion]#Metodo de seleccion basado en el rango
     padres = copy.deepcopy(nuevaGen)
     while len(nuevaGen) < cantCromosomas:
@@ -80,6 +79,24 @@ def crearGeneracion(cantSeleccion):
     poblacion.clear()
     for crom in nuevaGen:
         poblacion.append(crom)
+        
+def mapa(recorrido):
+    coordenadas=[[541,599],[333,455],[543,273],[560,207],[547,614],[241,381],
+    [169,527],[201,800],[479,470],[655,279],[316,1002],[530,262],
+    [229,1393],[265,322],[288,252],[290,129],[282,146],[174,468],
+    [256,536],[464,455],[335,699],[339,264],[277,1526],[377,888]]
+    image = img.imread("Archivos\Argentina.png")
+    fig = plt.figure(1)
+    ax = fig.gca()
+    plt.imshow(image)
+    figure = ax.plot(coordenadas[recorrido[0]][0], coordenadas[recorrido[0]][1], marker= "o", color= "b")
+    for i in range(23):
+        desde = recorrido[i]
+        hacia = recorrido[i + 1]
+        coordx = [coordenadas[desde][0], coordenadas[hacia][0]]
+        coordy = [coordenadas[desde][1], coordenadas[hacia][1]]
+        figure = ax.plot(coordx, coordy, c= 'r')
+    plt.show()
 
 def metodoGenetico():
     #Poblacion inicial
@@ -94,17 +111,12 @@ def metodoGenetico():
 
     c = 0
     while c < cantCiclos:
-        crearGeneracion(34)
+        crearGeneracion()
         for crom in poblacion:
             crom.dist()
         fitness(poblacion)
         poblacion.sort(key=lambda poblacion: poblacion.distancia)
         c += 1
-    
-
-    #for crom in poblacion:
-    #    print('recorrido: ', crom.genes, '\ndistancia: ', crom.distancia, '   fitness: ', crom.fitness)
-    #print(sum(crom.fitness for crom in poblacion))
 
     elElegido = poblacion[0]
     elElegido.genes.append(elElegido.genes[0])
@@ -115,4 +127,6 @@ def metodoGenetico():
     for x in elElegido.genes:
         cities.append(ciudades[x])
     print('recorrido: ', elElegido.genes, '\ndistancias: ' , arr_distancias,'\nCiudades: ',  cities,'\ndistancia: ', elElegido.distancia, '   fitness: ', elElegido.fitness)
+    mapa(elElegido.genes)
     poblacion.clear()
+  

@@ -1,13 +1,11 @@
 import pandas as pd
 import numpy as np
-import random
-import copy
+from Genetico import mapa
 
 tc = pd.read_excel('Archivos\TablaCapitales.xlsx')
 matriz_distancias = tc.to_numpy()
 ciudades = list(tc.columns)
 
-#Funciones item 2
 def buscarCiudadMasCercana(matriz_distancias, ciudades, c):
     dist_min = np.nanmin(matriz_distancias[: , c])
     i_ciudad = np.where(matriz_distancias[:,c] == dist_min)[0][0]
@@ -18,6 +16,7 @@ def buscarCiudadMasCercana(matriz_distancias, ciudades, c):
 def rutaHeuristica(distancias_ciudad_origen, c):
     lista_ciudades = []
     total_recorrido =[]
+    indices_ciudades = []
     ciudades = list(tc.columns)
     ciudades_back = list(tc.columns)
     lista_ciudades.append(ciudades[c])
@@ -35,28 +34,32 @@ def rutaHeuristica(distancias_ciudad_origen, c):
     dist_final = distancias_ciudad_origen[i_ciudad_final]
     lista_ciudades.append(lista_ciudades[0])
     total_recorrido.append(dist_final)
-    return [sum(total_recorrido), lista_ciudades]
+    for x in lista_ciudades:
+        indices_ciudades.append(ciudades_back.index(x))
+    return [sum(total_recorrido), lista_ciudades, indices_ciudades]
 
 def rutaConCiudad():
     for x in range(24):
         print(x+1, ')', ciudades[x])
     c = int(input('Ingrese una ciudad (1 - 24)')) - 1
     distancias_ciudad_origen = matriz_distancias[:,c]
-    print(rutaHeuristica(distancias_ciudad_origen, c))
+    total, recorrido, ruta = rutaHeuristica(distancias_ciudad_origen, c)
+    print(recorrido, total, ruta)
+    mapa(ruta)
 
 def rutaMasCorta():
     ruta = []
     total = 0
-    r = 1
     for c in range(24):
         distancias_ciudad_origen = matriz_distancias[:,c]
         viaje = rutaHeuristica(distancias_ciudad_origen, c)
         if total == 0:
             total = viaje[0]
             ruta = viaje[1]
-        elif viaje[0] == total:
-            r += 1
+            recorrido = viaje[2]
         elif viaje[0] < total:
             total = viaje[0]
             ruta = viaje[1]
-    print(ruta, total, r)
+            recorrido = viaje[2]
+    print(ruta, total, recorrido)
+    mapa(recorrido)
