@@ -2,6 +2,7 @@ from math import log, sqrt
 import numpy as np
 import random
 import copy
+import matplotlib.pyplot as plt
 
 anchoCromosoma = 10
 largoCromosoma = 10
@@ -12,6 +13,7 @@ prob_mut = 0.05
 parque = []
 arr_potencias = []
 arr_fitness = []
+poblacion = []
 pot_total_poblacion = 0
 tam_celda = 100
 velm = 7.5
@@ -122,21 +124,15 @@ def crossover(prob_cross):
     hijo1 = np.zeros((anchoCromosoma, largoCromosoma), dtype=int)
     hijo2 = np.zeros((anchoCromosoma, largoCromosoma), dtype=int)
     if prob_cross >= random.uniform(0, 1):
-        cant_gen = True
-        while cant_gen == True:
-            for i in range(10):
-                if calcPotenciaFila(p1[i]) >= calcPotenciaFila(p1[i]):
-                    hijo1[i] = p1[i]
-                else:
-                    hijo1[i] = p2[i]
-                if np.sum(p1[:,i]) >= np.sum(p2[:,i]):
-                    hijo2[:,i] = p1[:,i]
-                else:
-                    hijo2[:,i] = p2[:,i]
-            if hijo1.sum() > 25 or hijo2.sum() > 25:
-                p1, p2 = [torneo(poblacion, arr_fitness), torneo(poblacion, arr_fitness)]
-            else: 
-                cant_gen = False
+        for i in range(10):
+            if calcPotenciaFila(p1[i]) >= calcPotenciaFila(p2[i]):
+                hijo1[i] = p1[i]
+            else:
+                hijo1[i] = p2[i]
+            if np.sum(p1[:,i]) >= np.sum(p2[:,i]):
+                hijo2[:,i] = p1[:,i]
+            else:
+                hijo2[:,i] = p2[:,i]
         return [hijo1, hijo2]
     else: return [p1, p2]
 
@@ -160,7 +156,24 @@ def FunMutacion(pares, mutacion):
         else: pares[0][x,y] == 0
         if pares[1][x,y] == 0: pares[1][x,y] == 1
         else: pares[1][x,y] == 0
-    return pares 
+    return pares
+
+def elitismo(poblacion):
+    newGen = []
+    i = 0
+    while len(newGen) <= 10:
+        newGen.append(poblacion[i])
+        i += 1
+    return newGen
+
+def graficas(poblacion):
+    #for parque in poblacion:
+    for x in range(10):
+        for y in range(10):
+            if (poblacion[0][x,y] == 1):
+                plt.scatter(x,y)
+    plt.axis([0, 11, 0, 11])
+    plt.show()
 
 #Ordenar los arrays de poblacion potencias y fitness
 def ordenarArrays(poblacion, arr_potencias, arr_fitness):
@@ -172,15 +185,27 @@ def ordenarArrays(poblacion, arr_potencias, arr_fitness):
                 poblacion[j], poblacion[j + 1] = poblacion[j + 1], poblacion[j]
                 arr_potencias[j], arr_potencias[j + 1] = arr_potencias[j + 1], arr_potencias[j]
 
-def crearGeneracion(arr_fitness, poblacion, prob_cross, prob_mut):
+def correccion(poblacion):
+    lista_indices_unos = []
+    for parque in poblacion:
+        while np.sum(parque) > 25:
+            for i in range(10):
+                for j in range(10):
+                    if parque[i, j] == 1:
+                        lista_indices_unos.append([i, j])
+            x, y = random.choice(lista_indices_unos)
+            parque[x, y] = 0
+
+def crearGeneracion():      #arr_fitness, poblacion, prob_cross, prob_mut
     arr_potencias = []
     newPoblacion = []
     while len(newPoblacion) < cantCromosomas:
         pares = crossover(prob_cross)
         pares = FunMutacion(pares ,prob_mut)
-        newPoblacion.append(pares[0])
-        newPoblacion.append(pares[1])
-    for parque in poblacion:
+        newPoblacion += pares
+    #correccion de cant de parques
+    correccion(newPoblacion)
+    for parque in newPoblacion:
         arr_potencias.append(calcularPotencia(parque, velm))
     arr_fitness = fitness(arr_potencias)
     ordenarArrays(newPoblacion, arr_fitness, arr_potencias)
@@ -197,18 +222,17 @@ for parque in poblacion:
 arr_fitness = fitness(arr_potencias) #Array con 50 numeros (FITNESS de cada parque en el array 'poblacion')
 ordenarArrays(poblacion, arr_potencias, arr_fitness)
 
-#Acá se debería empezar a crear todas las generaciones
 i = 0
-x = 0
-while i <= 10:
-    Poblacion = crearGeneracion(arr_fitness, poblacion, prob_cross, prob_mut)
-    #print('poblacion nueva')
-    while x < 50:
-        print('gen número', x) 
-        print(poblacion[x])
-        print(arr_potencias[x])
-        x +=1
-    i +=1
+cantGen = 20
+while i < cantGen:
+    poblacion = crearGeneracion()
+    if i == 0:
+        graficas(poblacion)
+    elif i == 9:
+        graficas(poblacion)
+    elif i == 19:
+        graficas(poblacion)
+    i += 1
 
 
 
