@@ -17,7 +17,7 @@ poblacion = []
 pot_total_poblacion = 0
 tam_celda = 100
 velm = 7.5
-k = 1/(2 * log(100/0.694))
+k = 1/2 * log(100/0.694)
 diam_rotor = 83
 rango_estela = 18 * diam_rotor
 
@@ -77,7 +77,7 @@ def calcularPotencia(parque, velm):
                         pot_gen = 5411 * 0.5 * 1.15 * (vel ** 3)
                 Ptot += pot_gen
                 columna_anterior = columna
-    return Ptot/1000 #kW ????
+    return Ptot/1000
 
 def fitness(arr_potencias):
     pot_total_poblacion = sum(arr_potencias)
@@ -222,7 +222,7 @@ arr_fitness = fitness(arr_potencias) #Array con 50 numeros (FITNESS de cada parq
 ordenarArrays(poblacion, arr_potencias, arr_fitness)
 
 i = 0
-cantGen = 20
+cantGen = 200
 while i < cantGen:
     poblacion = crearGeneracion()
     correccion(poblacion)
@@ -230,14 +230,23 @@ while i < cantGen:
     arr_fitness = fitness(arr_potencias)
     ordenarArrays(poblacion, arr_fitness, arr_potencias)
     if i == 0:
-        graficas(poblacion)
         print('generacion 1\n', arr_potencias[-1])
-    elif i == 9:
-        graficas(poblacion)
-        print('generacion 10\n', arr_potencias[-1])
-    elif i == 19:
-        graficas(poblacion)
-        print('generacion 20\n', arr_potencias[-1])
+        print(poblacion[-1])
+        plt.imshow(poblacion[-1])
+        plt.colorbar()
+        plt.show()
+    elif i == 99:
+        print('generacion 50\n', arr_potencias[-1])
+        print(poblacion[-1])
+        plt.imshow(poblacion[-1])
+        plt.colorbar()
+        plt.show()
+    elif i == 199:
+        print('generacion 100\n', arr_potencias[-1])
+        print(poblacion[-1])
+        plt.imshow(poblacion[-1])
+        plt.colorbar()
+        plt.show()
     i += 1
 
 
