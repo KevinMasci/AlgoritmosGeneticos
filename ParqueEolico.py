@@ -77,7 +77,7 @@ def calcularPotencia(parque, velm):
                         pot_gen = 5411 * 0.5 * 1.15 * (vel ** 3)
                 Ptot += pot_gen
                 columna_anterior = columna
-    return Ptot
+    return Ptot/1000 #kW ????
 
 def fitness(arr_potencias):
     pot_total_poblacion = sum(arr_potencias)
@@ -170,7 +170,7 @@ def graficas(poblacion):
     #for parque in poblacion:
     for x in range(10):
         for y in range(10):
-            if (poblacion[0][x,y] == 1):
+            if (poblacion[-1][x,y] == 1):
                 plt.scatter(x,y)
     plt.axis([0, 11, 0, 11])
     plt.show()
@@ -195,20 +195,19 @@ def correccion(poblacion):
                         lista_indices_unos.append([i, j])
             x, y = random.choice(lista_indices_unos)
             parque[x, y] = 0
+            
+def potParque(poblacion):
+    arr_pot = []
+    for parque in poblacion:
+        arr_pot.append(calcularPotencia(parque, velm))
+    return arr_pot
 
 def crearGeneracion():      #arr_fitness, poblacion, prob_cross, prob_mut
-    arr_potencias = []
     newPoblacion = []
     while len(newPoblacion) < cantCromosomas:
         pares = crossover(prob_cross)
         pares = FunMutacion(pares ,prob_mut)
         newPoblacion += pares
-    #correccion de cant de parques
-    correccion(newPoblacion)
-    for parque in newPoblacion:
-        arr_potencias.append(calcularPotencia(parque, velm))
-    arr_fitness = fitness(arr_potencias)
-    ordenarArrays(newPoblacion, arr_fitness, arr_potencias)
     return newPoblacion
 
 #Ejecucion
@@ -226,12 +225,19 @@ i = 0
 cantGen = 20
 while i < cantGen:
     poblacion = crearGeneracion()
+    correccion(poblacion)
+    arr_potencias = potParque(poblacion)
+    arr_fitness = fitness(arr_potencias)
+    ordenarArrays(poblacion, arr_fitness, arr_potencias)
     if i == 0:
         graficas(poblacion)
+        print('generacion 1\n', arr_potencias[-1])
     elif i == 9:
         graficas(poblacion)
+        print('generacion 10\n', arr_potencias[-1])
     elif i == 19:
         graficas(poblacion)
+        print('generacion 20\n', arr_potencias[-1])
     i += 1
 
 
