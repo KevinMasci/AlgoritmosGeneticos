@@ -44,7 +44,8 @@ def crearParque():
         if n == 1:
             i = random.randint(0,largoCromosoma-1)
             j = random.randint(0,anchoCromosoma-1)
-            parque[i,j] = 1
+            if ( i != 9 and j !=9) and (i != 8 and j!=0) and (i!=4 and j!=5):
+                parque[i,j] = 1
     return parque
 
 def crearPoblacionInicial(cantCromosomas):
