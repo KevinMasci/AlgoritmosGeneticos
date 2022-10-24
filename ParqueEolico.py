@@ -20,6 +20,7 @@ velm = 7.5
 k = 1/2 * log(100/0.694)
 diam_rotor = 83
 rango_estela = 18 * diam_rotor
+mejor_generacion_parque_potencia = [0, 0, 0]
 
 ##DIRECCION DEL VIENTO
 # => [0,0,0,0,0,0,0,0,0,0]
@@ -86,14 +87,6 @@ def fitness(arr_potencias):
         arr_fitness.append(round(pot/pot_total_poblacion, 10))
     return arr_fitness
 
-def ruleta(poblacion, arr_fitness):
-    eleccion = random.uniform(0, 1)
-    acum = 0
-    for x in range(50):
-        acum += arr_fitness[x]
-        if acum >= eleccion:
-            return poblacion[x]
-
 def calcPotenciaFila(fila):
     Ptot = 0
     columna_anterior = 0
@@ -158,21 +151,19 @@ def FunMutacion(pares, mutacion):
         else: pares[1][x,y] == 0
     return pares
 
-def elitismo(poblacion):
-    newGen = []
-    i = 0
-    while len(newGen) <= 10:
-        newGen.append(poblacion[i])
-        i += 1
-    return newGen
-
-def graficas(poblacion):
-    #for parque in poblacion:
+def graficas(parque, potencia):
+    x = 1
+    y = 1
+    plt.axhspan(0,12,color = 'yellowgreen',alpha=1)
     for x in range(10):
         for y in range(10):
-            if (poblacion[-1][x,y] == 1):
-                plt.scatter(x,y)
-    plt.axis([0, 11, 0, 11])
+            if (parque[x,y] == 1):
+                plt.scatter(y+1,x+1, color = 'whitesmoke')
+    plt.axis([0, 12, 0, 12])
+    plt.title('Mejor parque de la generación: ')
+    plt.plot(potencia, label= 'Potencia generada: ')
+    plt.plot(potencia, label= potencia)
+    plt.legend()
     plt.show()
 
 #Ordenar los arrays de poblacion potencias y fitness
@@ -203,7 +194,7 @@ def potParque(poblacion):
     return arr_pot
 
 def crearGeneracion():      #arr_fitness, poblacion, prob_cross, prob_mut
-    newPoblacion = []
+    newPoblacion = [] + poblacion[:10]
     while len(newPoblacion) < cantCromosomas:
         pares = crossover(prob_cross)
         pares = FunMutacion(pares ,prob_mut)
@@ -229,31 +220,23 @@ while i < cantGen:
     arr_potencias = potParque(poblacion)
     arr_fitness = fitness(arr_potencias)
     ordenarArrays(poblacion, arr_fitness, arr_potencias)
+    if arr_potencias[-1] > mejor_generacion_parque_potencia[2]:
+        mejor_generacion_parque_potencia[0] = i
+        mejor_generacion_parque_potencia[1] = poblacion[-1]
+        mejor_generacion_parque_potencia[2] = arr_potencias[-1]
     if i == 0:
         print('generacion 1\n', arr_potencias[-1])
         print(poblacion[-1])
-        plt.imshow(poblacion[-1])
-        plt.colorbar()
-        plt.show()
+        graficas(poblacion[-1],arr_potencias[-1])
     elif i == 99:
-        print('generacion 50\n', arr_potencias[-1])
-        print(poblacion[-1])
-        plt.imshow(poblacion[-1])
-        plt.colorbar()
-        plt.show()
-    elif i == 199:
         print('generacion 100\n', arr_potencias[-1])
         print(poblacion[-1])
-        plt.imshow(poblacion[-1])
-        plt.colorbar()
-        plt.show()
+        graficas(poblacion[-1],arr_potencias[-1])
+    elif i == 199:
+        print('generacion 200\n', arr_potencias[-1])
+        print(poblacion[-1])
+        graficas(poblacion[-1],arr_potencias[-1])
     i += 1
 
-
-
-#for x in range(50):
-#    print('Parque nro ', x+1, '\n', poblacion[x], '\nPotencia: ', arr_potencias[x], '\nFitness: ', arr_fitness[x], '\n\n')
-#
-#print(arr_fitness)
-#print(arr_potencias)
-#print(sum(arr_fitness))
+print('Mejor parque generacion:', mejor_generacion_parque_potencia[0])
+graficas(mejor_generacion_parque_potencia[1], mejor_generacion_parque_potencia[2])
