@@ -34,9 +34,7 @@ mejor_generacion_parque_potencia = [0, 0, 0]
 # => [0,0,0,0,0,0,0,0,0,0]
 # => [0,0,0,0,0,0,0,0,0,0]
 
-
 #Velocidad minima para el funcionamiento de un aerogenerador 3 m/s
-
 
 def crearParque():
     parque = np.zeros((anchoCromosoma, largoCromosoma), dtype=int)
@@ -186,7 +184,7 @@ def correccion(poblacion):
                         lista_indices_unos.append([i, j])
             x, y = random.choice(lista_indices_unos)
             parque[x, y] = 0
-            
+
 def potParque(poblacion):
     arr_pot = []
     for parque in poblacion:
