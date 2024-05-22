@@ -36,7 +36,7 @@ items2= []
 
 items2.append(Elemento(1, 1800, 72))
 items2.append(Elemento(2, 600, 36))
-items2.append(Elemento(3, 1200, 760))
+items2.append(Elemento(3, 1200, 60))
 
 #Funcion Metodo Exhaustivo
 #crea numeros binario del 0 al 1023, los va recorriendo y cuando encuentra un 1
